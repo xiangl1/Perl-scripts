@@ -23,11 +23,12 @@ sub main {
 
     # get parameters (query,database,rettype, and output file)
     my $input = $args{'input'} or pod2usage('Missing query strings or acc list file');
-	my $db = $args{'db'} || 'protein';
+    my $db = $args{'db'} || 'protein';
     my $rettype = $args{'rettype'} || 'acc';
     my $outfile = $args{'out'} or pod2usage('Missing outfile name');
-	my $base = 'https://eutils.ncbi.nlm.nih.gov/entrez/eutils/';	
-	# retrieve by accession number list
+    my $base = 'https://eutils.ncbi.nlm.nih.gov/entrez/eutils/';	
+    
+    # retrieve by accession number list
     if ( -s $input) {
     open my $in_fh, "<", $input;
     my @acc_list;
@@ -57,15 +58,15 @@ sub main {
     close $out_fh;
     }  else {
 	# retrieve by NCBI esearch term
-		retrieve ($input, $db, $rettype, $outfile);
+	retrieve ($input, $db, $rettype, $outfile);
 	}
 
 }
 
 # --------------------------------------------------
 sub retrieve {
-	# assemble the esearch URL
-	my ($query, $db, $rettype,$outfile) = @_;
+    # assemble the esearch URL
+    my ($query, $db, $rettype,$outfile) = @_;
     my $base = 'https://eutils.ncbi.nlm.nih.gov/entrez/eutils/';
     my $url = $base . "esearch.fcgi?db=$db&term=$query&usehistory=y";
 
@@ -78,19 +79,18 @@ sub retrieve {
     my $key = $1 if ($output =~ /<QueryKey>(\d+)<\/QueryKey>/);
     my $count = $1 if ($output =~ /<Count>(\d+)<\/Count>/);
 
-	# open output file for writing
-	open my $out_fh, ">", $outfile;
+    # open output file for writing
+    open my $out_fh, ">", $outfile;
 
-	# retrieve data in batches of 500
-
-	my $retmax = 500;
-	for (my $retstart = 0; $retstart < $count; $retstart += $retmax) {
+    # retrieve data in batches of 500
+    my $retmax = 500;
+    for (my $retstart = 0; $retstart < $count; $retstart += $retmax) {
         my $efetch_url = $base ."efetch.fcgi?db=$db&WebEnv=$web";
         $efetch_url .= "&query_key=$key&retstart=$retstart";
         $efetch_url .= "&retmax=$retmax&rettype=$rettype&retmode=text";
         my $efetch_out = get($efetch_url);
         say $out_fh "$efetch_out";
-	}
+    }
 	close $out_fh;
 }
 
@@ -100,10 +100,10 @@ sub get_args {
     GetOptions(
         \%args,
         'input=s',
-		'db=s',
-		'rettype=s',
-		'out=s',
-		'help',
+	'db=s',
+	'rettype=s',
+	'out=s',
+	'help',
         'man',
     ) or pod2usage(2);
 
